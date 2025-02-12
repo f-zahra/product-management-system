@@ -1,17 +1,24 @@
 require("dotenv").config();
-const { Pool } = require("pg");
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const { Sequelize } = require("sequelize");
+
+// Create a new Sequelize instance to connect to PostgreSQL
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: "postgres",
+  define: {
+    freezeTableName: true, // Don't auto-pluralize table names
+  },
+});
 
 // Test the connection
-pool
-  .connect()
-  .then((client) => {
-    console.log("Connected to PostgreSQL");
-    client.release(); // Release the connection back to the pool
-  })
-  .catch((err) => console.error(" Connection error", err.stack));
+async function testConnection() {
+  try {
+    await sequelize.authenticate(); // Try to authenticate the connection
+    console.log("Connection has been established successfully.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
+}
 
-module.exports = {
-  query: (text, params) => pool.query(text, params),
-};
+testConnection();
+module.exports = sequelize;
