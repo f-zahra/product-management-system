@@ -11,14 +11,13 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 });
 
 // Test the connection
-async function testConnection() {
+(async function testConnection() {
   try {
     await sequelize.authenticate(); // Try to authenticate the connection
     console.log("Connection has been established successfully.");
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
-}
+})();
 
-testConnection();
 module.exports = sequelize;
