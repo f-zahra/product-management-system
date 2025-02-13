@@ -14,7 +14,7 @@ const User = sequelize.define(
 
 (async () => {
   try {
-    await User.sync({ alter: true }); // `{ alter: true }` updates table structure
+    await User.sync({ force: true }); // for dev only
     console.log("✅ User model synced!");
   } catch (error) {
     console.error("❌ Failed to sync User model:", error);
