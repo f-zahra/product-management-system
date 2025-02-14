@@ -2,9 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const db = require("./db");
-const userRouter = require("./userRoutes");
-const productRouter = require("./productRoutes");
-const orderRouter = require("./orderRoutes");
+const userRouter = require("./routes/userRoutes");
+const productRouter = require("./routes/productRoutes");
+const orderRouter = require("./routes/orderRoutes");
 app.get("/", (req, res) => {
   res.send("welcome !");
 });
