@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/users", userRouter);
-app.use("/products", userRouter);
+app.use("/products", productRouter);
 app.use("/orders", orderRouter);
 
 const PORT = process.env.PORT || 8080;
