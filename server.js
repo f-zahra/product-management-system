@@ -5,6 +5,9 @@ const db = require("./db");
 const userRouter = require("./routes/userRoutes");
 const productRouter = require("./routes/productRoutes");
 const orderRouter = require("./routes/orderRoutes");
+
+app.use(express.json());
+
 app.get("/", (req, res) => {
   res.send("welcome !");
 });
