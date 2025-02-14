@@ -1,8 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const User = require("./user");
-const Product = require("./product");
+const Order = require("./order");
 
 app.get("/", (req, res) => {
   res.send("welcome !");

@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./db");
+const Order = require("./order");
 
 const Product = sequelize.define(
   "Product",
@@ -25,12 +26,4 @@ const Product = sequelize.define(
   { schema: "product_management" }
 );
 
-(async () => {
-  try {
-    await Product.sync({ force: true }); // for dev only
-    console.log("✅ Product model synced!");
-  } catch (error) {
-    console.error("❌ Failed to sync Product model:", error);
-  }
-})();
 module.exports = Product;
