@@ -10,14 +10,12 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   },
 });
 
-// Test the connection
-(async function testConnection() {
+(async () => {
   try {
-    await sequelize.authenticate(); // Try to authenticate the connection
-    console.log("Connection has been established successfully.");
+    await sequelize.sync({ force: true }); // for dev only
+    console.log("✅  all models synced!");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    console.error("❌ Failed to sync all models:", error);
   }
 })();
-
 module.exports = sequelize;
