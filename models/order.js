@@ -1,8 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("./db"); // Assuming your Sequelize instance is set up in db.js
+const sequelize = require("../db"); // Assuming your Sequelize instance is set up in db.js
 const User = require("./user");
 const Product = require("./product");
-const orderProduct = require("./orderProduct");
 
 const Order = sequelize.define(
   "Order",
@@ -51,9 +50,9 @@ Product.belongsToMany(Order, {
 (async () => {
   try {
     await sequelize.sync({ force: true }); // for dev only
-    console.log("✅  models synced!");
+    console.log("✅  all models synced!");
   } catch (error) {
-    console.error("❌ Failed to sync models:", error);
+    console.error("❌ Failed to sync all models:", error);
   }
 })();
 module.exports = Order;

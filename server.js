@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const Order = require("./order");
+const Order = require("./models/order");
 
 app.get("/", (req, res) => {
   res.send("welcome !");
