@@ -19,7 +19,7 @@ const Product = sequelize.define(
     },
     stock: {
       type: DataTypes.INTEGER,
-      defaultValue: 0, // Default stock value
+      defaultValue: 100, // Default stock value is 100 for now until stock management system is implemented
     },
   },
   { schema: "product_management" }
