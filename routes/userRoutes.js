@@ -1,6 +1,7 @@
 var express = require("express");
 const router = express.Router();
 const User = require("../models/user");
+const { body, validationResult } = require("express-validator");
 
 //Find user by id  (GET /users/:id)
 router.get("/:id", async (req, res) => {
@@ -23,15 +24,43 @@ router.get("/", async (req, res) => {
 });
 
 //Create a new user (POST /users)
-router.post("/", async (req, res) => {
-  const { name, email } = req.body;
-  const newUser = await User.create({
-    name: name,
-    email: email,
-  });
-  console.log("User's auto-generated ID:", newUser.id);
-  res.send(newUser);
-});
+router.post(
+  "/",
+  [
+    //input validation
+    body("name")
+      .trim()
+      .notEmpty()
+      .withMessage("Name is required")
+      .isLength({ min: 2, max: 50 })
+      .withMessage("Name must be between 2 and 50 characters")
+      .matches(/^[a-zA-Z\s]+$/)
+      .withMessage("Name must contain only letters and spaces")
+      .escape(),
+    body("email")
+      .notEmpty()
+      .withMessage("Email is required")
+      .isEmail()
+      .withMessage("Invalid email format")
+      .normalizeEmail() //lower case email
+      .escape(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const validatedData = matchedData(req); // Ensures no extra fields. only validated fields are extracted
+    const { name, email } = validatedData; // Now it's safe to destructure
+    const newUser = await User.create({
+      name: name,
+      email: email,
+    });
+    console.log("User's auto-generated ID:", newUser.id);
+    res.send(newUser);
+  }
+);
+
 //Update user (PUT /users/:d)
 router.put("/:id", async (req, res) => {
   const { name, email } = req.body;
