@@ -1,4 +1,4 @@
-const { body, validationResult, matchedData } = require("express-validator");
+const { validateProduct } = require("../validators");
 
 var express = require("express");
 const router = express.Router();
@@ -32,52 +32,15 @@ router.get("/", async (req, res, next) => {
 });
 
 // 3. Create a new product (POST /products)
-router.post(
-  "/",
-  [
-    // Input Validation & Sanitization
-    body("name")
-      .trim()
-      .notEmpty()
-      .withMessage("Product name is required")
-      .isLength({ min: 2, max: 100 })
-      .withMessage("Product name must be between 2 and 100 characters")
-      .matches(/^[a-zA-Z\s]+$/)
-      .withMessage("Product name must contain only letters and spaces")
-      .escape(),
-
-    body("description")
-      .trim()
-      .notEmpty()
-      .withMessage("Description is required")
-      .isLength({ max: 500 })
-      .withMessage("Description must not exceed 500 characters")
-      .escape(),
-
-    body("price")
-      .notEmpty()
-      .withMessage("Price is required")
-      .isFloat({ gt: 0 })
-      .withMessage("Price must be a number greater than 0"),
-  ],
-  async (req, res, next) => {
-    // Check validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    // Extract validated fields only
-    const validatedData = matchedData(req);
-    const { name, description, price } = validatedData;
-    const newProduct = await Product.create({ name, description, price });
-    res.status(201).json(newProduct);
-  }
-);
+router.post("/", validateProduct, async (req, res, next) => {
+  const { name, description, price } = req.validData;
+  const newProduct = await Product.create({ name, description, price });
+  res.status(201).json(newProduct);
+});
 
 // 4. Update product (PUT /products/:id)
-router.put("/:id", async (req, res, next) => {
-  const { name, price, description } = req.body;
+router.put("/:id", validateProduct, async (req, res, next) => {
+  const { name, price, description } = req.validData;
 
   const updatedProduct = await Product.update(
     { name: name, price: price, description: description },
