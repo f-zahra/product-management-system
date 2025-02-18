@@ -1,7 +1,7 @@
 var express = require("express");
 const router = express.Router();
 const User = require("../models/user");
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, matchedData } = require("express-validator");
 
 //Find user by id  (GET /users/:id)
 router.get("/:id", async (req, res) => {
