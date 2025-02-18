@@ -4,6 +4,12 @@ const sequelize = require("../db");
 const Product = sequelize.define(
   "Product",
   {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
     // Define columns
     name: {
       type: DataTypes.STRING,
