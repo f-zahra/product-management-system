@@ -56,17 +56,20 @@ router.put("/:id", validateUser, async (req, res) => {
       },
     }
   );
-  res.send(updatedUser);
+  res.status(200).json(updatedUser);
 });
 //Delete user (DELETE /users/:d)
 router.delete("/:id", async (req, res) => {
-  const deletedUser = await User.destroy({
-    where: {
-      id: req.params.id,
-    },
-  });
+  const userId = req.params.id;
+  // Check if user exists
+  const userToDelete = await User.findByPk(userId);
+  if (!userToDelete) {
+    return res.status(404).json({ message: "User not found" });
+  }
 
-  res.send({ deletedUser: deletedUser });
+  //  delete the user
+  await userToDelete.destroy();
+  res.status(200).json({ message: "User deleted successfully" });
 });
 
 module.exports = router;

@@ -62,41 +62,32 @@ router.post("/", validateOrder, async (req, res) => {
 });
 
 // Update order (PUT /orders/:id)
-router.put("/:id", validateOrder, async (req, res) => {
+router.put("/:id", async (req, res) => {
   const orderId = req.params.id;
-  const { total_price, status, order_date } = req.body; // Assuming you pass updated details
+  const { total_price, status, order_date } = req.validData; // Assuming you pass updated details
 
-  const [updatedRowsCount] = await Order.update(
+  const [updatedOrder] = await Order.update(
     { total_price, status, order_date },
     { where: { order_id: orderId } }
-  ).catch((error) => {
-    res.status(500).send({ message: "Error updating order", error });
+  );
+
+  res.status(200).json({
+    message: "Order updated successfully",
+    updatedOrder: updatedOrder,
   });
-
-  if (updatedRowsCount === 0) {
-    return res
-      .status(404)
-      .send({ message: "Order not found or no changes made" });
-  }
-
-  res.send({ message: "Order updated successfully" });
 });
 
 // Delete order (DELETE /orders/:id)
 router.delete("/:id", async (req, res) => {
   const orderId = req.params.id;
-
-  const deletedRowsCount = await Order.destroy({
-    where: { order_id: orderId },
-  }).catch((error) => {
-    res.status(500).send({ message: "Error deleting order", error });
-  });
-
-  if (deletedRowsCount === 0) {
-    return res.status(404).send({ message: "Order not found" });
+  const orderToDelete = await Order.findByPk(orderId);
+  if (!orderToDelete) {
+    return res.status(404).json({ msg: "order not found" });
   }
+  //delete order
 
-  res.send({ message: "Order deleted successfully" });
+  await orderToDelete.destroy();
+  res.status(200).json({ message: "Order deleted successfully" });
 });
 
 module.exports = router;

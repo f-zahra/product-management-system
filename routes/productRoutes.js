@@ -42,7 +42,7 @@ router.post("/", validateProduct, async (req, res, next) => {
 router.put("/:id", validateProduct, async (req, res, next) => {
   const { name, price, description } = req.validData;
 
-  const updatedProduct = await Product.update(
+  const [updatedProduct] = await Product.update(
     { name: name, price: price, description: description },
     {
       where: {
@@ -55,11 +55,14 @@ router.put("/:id", validateProduct, async (req, res, next) => {
 
 // 5. Delete product (DELETE /products/:id)
 router.delete("/:id", async (req, res, next) => {
-  await Product.destroy({
-    where: {
-      id: req.params.id,
-    },
-  }); // Delete product
+  //find product
+  const productId = req.params.id;
+  const productToDelete = await Product.findByPk(productId);
+  if (!productToDelete) {
+    return res.status(404).json({ msg: "product not found" });
+  }
+
+  await productToDelete.destroy(); // Delete product
   res.status(200).json({ message: "Product deleted successfully" });
 });
 
