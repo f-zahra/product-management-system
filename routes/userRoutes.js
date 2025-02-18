@@ -56,8 +56,7 @@ router.post(
       name: name,
       email: email,
     });
-    console.log("User's auto-generated ID:", newUser.id);
-    res.send(newUser);
+    res.status(201).json(newUser);
   }
 );
 
