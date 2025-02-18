@@ -70,4 +70,47 @@ const validateProduct = [
     next();
   },
 ];
-module.exports = { validateUser, validateProduct };
+const validateOrder = [
+  // Input Validation & Sanitization
+  body("userId")
+    .notEmpty()
+    .withMessage("User ID is required")
+    .isInt()
+    .withMessage("User ID must be an integer")
+    .toInt(),
+
+  body("products")
+    .isArray({ min: 1 })
+    .withMessage("Products must be a non-empty array"),
+
+  body("products.*")
+    .isInt()
+    .withMessage("Each product ID must be an integer")
+    .toInt(),
+
+  body("total_price")
+    .notEmpty()
+    .withMessage("Total price is required")
+    .isFloat({ gt: 0 })
+    .withMessage("Total price must be a number greater than 0")
+    .toFloat(),
+
+  body("quantity")
+    .optional()
+    .isInt({ gt: 0 })
+    .withMessage("Quantity must be an integer greater than 0")
+    .toInt(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // // Ensures no extra fields. only validated fields are extracted
+    //store so they can be accessed in the next middleware or route handler.
+    req.validData = matchedData(req);
+    next();
+  },
+];
+
+module.exports = { validateUser, validateProduct, validateOrder };

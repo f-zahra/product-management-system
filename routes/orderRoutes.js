@@ -1,4 +1,4 @@
-const { body, validationResult, matchedData } = require("express-validator");
+const { validateOrder } = require("../validators");
 
 var express = require("express");
 const router = express.Router();
@@ -36,75 +36,33 @@ router.get("/", async (req, res) => {
 });
 
 // Create a new order (POST /orders)
-router.post(
-  "/",
-  [
-    // Input Validation & Sanitization
-    body("userId")
-      .notEmpty()
-      .withMessage("User ID is required")
-      .isInt()
-      .withMessage("User ID must be an integer")
-      .toInt(),
+router.post("/", validateOrder, async (req, res) => {
+  const { userId, products, total_price } = req.validData;
 
-    body("products")
-      .isArray({ min: 1 })
-      .withMessage("Products must be a non-empty array"),
+  //TODO verify if user exist
 
-    body("products.*")
-      .isInt()
-      .withMessage("Each product ID must be an integer")
-      .toInt(),
+  // Create new Order instance
+  const newOrder = await Order.create({
+    total_price: total_price,
+  });
+  // Associate the order with the user
+  await newOrder.setUser(userId);
 
-    body("total_price")
-      .notEmpty()
-      .withMessage("Total price is required")
-      .isFloat({ gt: 0 })
-      .withMessage("Total price must be a number greater than 0")
-      .toFloat(),
+  // Associate products with the order
+  // For each product, create an entry in the OrderProduct table
+  for (const productId of products) {
+    //TODO verify if product exist
+    // Assuming the request sends a quantity for each product
+    const quantity = req.body.quantity;
 
-    body("quantity")
-      .optional()
-      .isInt({ gt: 0 })
-      .withMessage("Quantity must be an integer greater than 0")
-      .toInt(),
-  ],
-  async (req, res) => {
-    // Check validation errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    // Extract validated fields only
-    const validatedData = matchedData(req);
-    const { userId, products, total_price } = validatedData;
-
-    //TODO verify if user exist
-
-    // Create new Order instance
-    const newOrder = await Order.create({
-      total_price: total_price,
-    });
-    // Associate the order with the user
-    await newOrder.setUser(userId);
-
-    // Associate products with the order
-    // For each product, create an entry in the OrderProduct table
-    for (const productId of products) {
-      //TODO verify if product exist
-      // Assuming the request sends a quantity for each product
-      const quantity = req.body.quantity;
-
-      await newOrder.addProduct(productId, { through: { quantity } });
-    }
-
-    res.status(201).json(newOrder);
+    await newOrder.addProduct(productId, { through: { quantity } });
   }
-);
+
+  res.status(201).json(newOrder);
+});
 
 // Update order (PUT /orders/:id)
-router.put("/:id", async (req, res) => {
+router.put("/:id", validateOrder, async (req, res) => {
   const orderId = req.params.id;
   const { total_price, status, order_date } = req.body; // Assuming you pass updated details
 
