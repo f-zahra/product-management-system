@@ -26,6 +26,7 @@ router.get("/", async (req, res, next) => {
   const products = await Product.findAll({
     limit: limit,
     offset: offset,
+    order: [["name", "ASC"]],
   });
   res.status(200).json(products); // Send all products
 });

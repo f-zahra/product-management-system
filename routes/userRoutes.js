@@ -29,6 +29,7 @@ router.get("/", async (req, res) => {
   const users = await User.findAll({
     limit: limit,
     offset: offset,
+    order: [["name", "ASC"]],
   });
   res.status(200).json(users);
 });

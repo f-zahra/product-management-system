@@ -14,7 +14,7 @@ router.get("/:id", async (req, res) => {
     return res.status(404).send({ message: "Order not found" });
   }
 
-  res.json(order); // Return the found order
+  res.status(200).json(order); // Return the found order
 });
 // Find all orders (GET /orders)
 router.get("/", async (req, res) => {
@@ -29,11 +29,10 @@ router.get("/", async (req, res) => {
   const orders = await Order.findAll({
     limit: limit,
     offset: offset,
+    order: [["order_date", "DSC"]],
   });
 
-  if (orders) {
-    res.json(orders); // Return the list of orders as a JSON response
-  }
+  res.status(200).json(orders); // Return the list of orders as a JSON response
 });
 
 // Create a new order (POST /orders)
