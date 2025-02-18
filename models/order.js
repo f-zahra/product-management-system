@@ -37,15 +37,10 @@ Order.belongsTo(User, {
   foreignKey: "userId",
 });
 
-// Order has many Products
+//One Product can be linked to many Orders.
 Order.belongsToMany(Product, {
   through: "OrderProduct", // Junction table name
   foreignKey: "orderId",
-});
-// Product belongs to many Orders
-Product.belongsToMany(Order, {
-  through: "OrderProduct", // Junction table name
-  foreignKey: "productId",
 });
 
 module.exports = Order;
