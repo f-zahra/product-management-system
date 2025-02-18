@@ -18,7 +18,18 @@ router.get("/:id", async (req, res) => {
 });
 // Find all orders (GET /orders)
 router.get("/", async (req, res) => {
-  const orders = await Order.findAll();
+  let { page, limit } = req.query; // Get from query parameters
+
+  // Set default values if not provided
+  page = parseInt(page) || 1; // Default to page 1
+  limit = parseInt(limit) || 10; // Default limit of 10
+
+  const offset = (page - 1) * limit; // Calculate offset
+
+  const orders = await Order.findAll({
+    limit: limit,
+    offset: offset,
+  });
 
   if (orders) {
     res.json(orders); // Return the list of orders as a JSON response
@@ -70,6 +81,8 @@ router.post(
     const validatedData = matchedData(req);
     const { userId, products, total_price } = validatedData;
 
+    //TODO verify if user exist
+
     // Create new Order instance
     const newOrder = await Order.create({
       total_price: total_price,
@@ -80,6 +93,7 @@ router.post(
     // Associate products with the order
     // For each product, create an entry in the OrderProduct table
     for (const productId of products) {
+      //TODO verify if product exist
       // Assuming the request sends a quantity for each product
       const quantity = req.body.quantity;
 

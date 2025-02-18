@@ -17,10 +17,20 @@ router.get("/:id", async (req, res) => {
 });
 //Find all users  (GET /users)
 router.get("/", async (req, res) => {
+  let { page, limit } = req.query; // Get from query parameters
+
+  // Set default values if not provided
+  page = parseInt(page) || 1; // Default to page 1
+  limit = parseInt(limit) || 10; // Default limit of 10
+
+  const offset = (page - 1) * limit; // Calculate offset
+
   // Find all users
-  const users = await User.findAll();
-  console.log(users.every((user) => user instanceof User)); // true
-  res.send(users);
+  const users = await User.findAll({
+    limit: limit,
+    offset: offset,
+  });
+  res.status(200).json(users);
 });
 
 //Create a new user (POST /users)

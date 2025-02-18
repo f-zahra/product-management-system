@@ -15,7 +15,18 @@ router.get("/:id", async (req, res, next) => {
 });
 // 1. Find all products (GET /products)
 router.get("/", async (req, res, next) => {
-  const products = await Product.findAll();
+  let { page, limit } = req.query; // Get from query parameters
+
+  // Set default values if not provided
+  page = parseInt(page) || 1; // Default to page 1
+  limit = parseInt(limit) || 10; // Default limit of 10
+
+  const offset = (page - 1) * limit; // Calculate offset
+
+  const products = await Product.findAll({
+    limit: limit,
+    offset: offset,
+  });
   res.status(200).json(products); // Send all products
 });
 
