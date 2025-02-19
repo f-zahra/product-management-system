@@ -1,78 +1,21 @@
 var express = require("express");
 const router = express.Router();
-const User = require("../models/user");
+
 const { validateUser } = require("../validators");
-const sequelize = require("../db");
+
+const userController = require("../controllers/userController");
 
 //Find user by id  (GET /users/:id)
-router.get("/:id", async (req, res) => {
-  //find user by id
-  const user = await User.findByPk(req.params.id);
-  // If the user doesn't exist, return 404
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  // Send the user details if found
-  res.status(200).json(user);
-});
+router.get("/:id", userController.getUserById);
 //Find all users  (GET /users)
-router.get("/", async (req, res) => {
-  let { page, limit } = req.query; // Get from query parameters
-
-  // Set default values if not provided
-  page = parseInt(page) || 1; // Default to page 1
-  limit = parseInt(limit) || 10; // Default limit of 10
-
-  const offset = (page - 1) * limit; // Calculate offset
-
-  // Find all users
-  const users = await User.findAll({
-    limit: limit,
-    offset: offset,
-    order: [["name", "ASC"]],
-  });
-  res.status(200).json(users);
-});
+router.get("/", userController.getUsers);
 
 //Create a new user (POST /users)
-router.post("/", validateUser, async (req, res) => {
-  await sequelize.transaction(async (t) => {
-    const { name, email } = req.validData; // Now it's safe to destructure
-    const newUser = await User.create(
-      { name, email },
-      { transaction: t } // Pass the transaction object
-    );
-    res.status(201).json(newUser);
-  });
-});
+router.post("/", validateUser, userController.createUser);
 
 //Update user (PUT /users/:d)
-router.put("/:id", validateUser, async (req, res) => {
-  const { name, email } = req.body;
-
-  const updatedUser = await User.update(
-    { name: name, email: email },
-    {
-      where: {
-        id: req.params.id,
-      },
-    }
-  );
-  res.status(200).json(updatedUser);
-});
+router.put("/:id", validateUser, userController.updateUser);
 //Delete user (DELETE /users/:d)
-router.delete("/:id", async (req, res) => {
-  const userId = req.params.id;
-  // Check if user exists
-  const userToDelete = await User.findByPk(userId);
-  if (!userToDelete) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  //  delete the user
-  await userToDelete.destroy();
-  res.status(200).json({ message: "User deleted successfully" });
-});
+router.delete("/:id", userController.deleteUser);
 
 module.exports = router;
