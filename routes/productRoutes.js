@@ -3,6 +3,8 @@ const { validateProduct } = require("../validators");
 var express = require("express");
 const router = express.Router();
 const Product = require("../models/product");
+const { Sequelize } = require("sequelize");
+const sequelize = require("../db");
 
 // 2. Find product by ID (GET /products/:id)
 router.get("/:id", async (req, res, next) => {
@@ -32,10 +34,15 @@ router.get("/", async (req, res, next) => {
 });
 
 // 3. Create a new product (POST /products)
-router.post("/", validateProduct, async (req, res, next) => {
-  const { name, description, price } = req.validData;
-  const newProduct = await Product.create({ name, description, price });
-  res.status(201).json(newProduct);
+router.post("/", validateProduct, async (req, res) => {
+  await sequelize.transaction(async (t) => {
+    const { name, description, price } = req.validData;
+    const newProduct = await Product.create(
+      { name, description, price },
+      { transaction: t }
+    );
+    res.status(201).json(newProduct);
+  });
 });
 
 // 4. Update product (PUT /products/:id)

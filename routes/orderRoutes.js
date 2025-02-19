@@ -3,6 +3,7 @@ const { validateOrder } = require("../validators");
 var express = require("express");
 const router = express.Router();
 const Order = require("../models/order");
+const sequelize = require("../db");
 
 // Find order by id (GET /orders/:id)
 router.get("/:id", async (req, res) => {
@@ -29,7 +30,7 @@ router.get("/", async (req, res) => {
   const orders = await Order.findAll({
     limit: limit,
     offset: offset,
-    order: [["order_date", "DSC"]],
+    order: [["order_date", "DESC"]],
   });
 
   res.status(200).json(orders); // Return the list of orders as a JSON response
@@ -37,28 +38,33 @@ router.get("/", async (req, res) => {
 
 // Create a new order (POST /orders)
 router.post("/", validateOrder, async (req, res) => {
-  const { userId, products, total_price } = req.validData;
+  await sequelize.transaction(async (t) => {
+    const { userId, products, total_price } = req.validData;
 
-  //TODO verify if user exist
+    //TODO verify if user exist
 
-  // Create new Order instance
-  const newOrder = await Order.create({
-    total_price: total_price,
+    // Create new Order instance
+    const newOrder = await Order.create(
+      {
+        total_price: total_price,
+      },
+      { transaction: t } //make sure that an order is not created if foreign keys are null
+    );
+    // Associate the order with the user
+    await newOrder.setUser(userId);
+
+    // Associate products with the order
+    // For each product, create an entry in the OrderProduct table
+    for (const productId of products) {
+      //TODO verify if product exist
+      // Assuming the request sends a quantity for each product
+      const quantity = req.body.quantity;
+
+      await newOrder.addProduct(productId, { through: { quantity } });
+    }
+
+    res.status(201).json(newOrder);
   });
-  // Associate the order with the user
-  await newOrder.setUser(userId);
-
-  // Associate products with the order
-  // For each product, create an entry in the OrderProduct table
-  for (const productId of products) {
-    //TODO verify if product exist
-    // Assuming the request sends a quantity for each product
-    const quantity = req.body.quantity;
-
-    await newOrder.addProduct(productId, { through: { quantity } });
-  }
-
-  res.status(201).json(newOrder);
 });
 
 // Update order (PUT /orders/:id)

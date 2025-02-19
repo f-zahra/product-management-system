@@ -2,6 +2,7 @@ var express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const { validateUser } = require("../validators");
+const sequelize = require("../db");
 
 //Find user by id  (GET /users/:id)
 router.get("/:id", async (req, res) => {
@@ -36,12 +37,14 @@ router.get("/", async (req, res) => {
 
 //Create a new user (POST /users)
 router.post("/", validateUser, async (req, res) => {
-  const { name, email } = req.validData; // Now it's safe to destructure
-  const newUser = await User.create({
-    name: name,
-    email: email,
+  await sequelize.transaction(async (t) => {
+    const { name, email } = req.validData; // Now it's safe to destructure
+    const newUser = await User.create(
+      { name, email },
+      { transaction: t } // Pass the transaction object
+    );
+    res.status(201).json(newUser);
   });
-  res.status(201).json(newUser);
 });
 
 //Update user (PUT /users/:d)
