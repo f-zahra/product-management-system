@@ -10,7 +10,7 @@ const userService = new UserService(userRepository);
 
 exports.getUserById = async (req, res) => {
   //find user by id
-  const user = await User.findByPk(req.params.id);
+  const user = await userService.findUserById(req.params.id);
   // If the user doesn't exist, return 404
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -25,14 +25,14 @@ exports.getUsers = async (req, res) => {
   // Set default values if not provided
   page = parseInt(page) || 1; // Default to page 1
   limit = parseInt(limit) || 10; // Default limit of 10
-
+  const order = req.query.order || "ASC";
   const offset = (page - 1) * limit; // Calculate offset
 
   // Find all users
-  const users = await User.findAll({
-    limit: limit,
-    offset: offset,
-    order: [["name", "ASC"]],
+  const users = await userService.findAllUsers({
+    limit,
+    offset,
+    order,
   });
   res.status(200).json(users);
 };
@@ -45,25 +45,24 @@ exports.createUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   const { name, email } = req.body;
 
-  const updatedUser = await User.update(
+  const updatedUser = await userService.updateUser(
     { name: name, email: email },
-    {
-      where: {
-        id: req.params.id,
-      },
-    }
+
+    req.params.id
   );
   res.status(200).json(updatedUser);
 };
 exports.deleteUser = async (req, res) => {
   const userId = req.params.id;
   // Check if user exists
-  const userToDelete = await User.findByPk(userId);
-  if (!userToDelete) {
-    return res.status(404).json({ message: "User not found" });
-  }
+  // const userToDelete = await User.findByPk(userId);
+  // if (!userToDelete) {
+  //   return res.status(404).json({ message: "User not found" });
+  // }
 
-  //  delete the user
-  await userToDelete.destroy();
+  // //  delete the user
+  // await userToDelete.destroy();
+
+  const userToDelete = await userService.deleteUser(userId);
   res.status(200).json({ message: "User deleted successfully" });
 };
