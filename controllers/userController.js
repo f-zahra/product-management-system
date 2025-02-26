@@ -1,5 +1,13 @@
 const User = require("../models/user");
 const sequelize = require("../db");
+const UserRepository = require("../userRepository");
+const UserService = require("../userService");
+//call user service
+// Create instances of UserRepository and UserService
+const userRepository = new UserRepository();
+//inject repo into service for loose coupling
+const userService = new UserService(userRepository);
+
 exports.getUserById = async (req, res) => {
   //find user by id
   const user = await User.findByPk(req.params.id);
@@ -29,14 +37,9 @@ exports.getUsers = async (req, res) => {
   res.status(200).json(users);
 };
 exports.createUser = async (req, res) => {
-  await sequelize.transaction(async (t) => {
-    const { name, email } = req.validData; // Now it's safe to destructure
-    const newUser = await User.create(
-      { name, email },
-      { transaction: t } // Pass the transaction object
-    );
-    res.status(201).json(newUser);
-  });
+  const { name, email } = req.validData; // Now it's safe to destructure
+  const newUser = await userService.createUser(name, email);
+  res.status(201).json(newUser);
 };
 
 exports.updateUser = async (req, res) => {

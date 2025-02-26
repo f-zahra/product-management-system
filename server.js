@@ -3,8 +3,6 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 
-const db = require("./db");
-
 const userRouter = require("./routes/userRoutes");
 const productRouter = require("./routes/productRoutes");
 const orderRouter = require("./routes/orderRoutes");
