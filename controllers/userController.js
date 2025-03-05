@@ -56,5 +56,7 @@ exports.deleteUser = async (req, res) => {
   const userId = req.params.id;
 
   const userToDelete = await userService.deleteUser(userId);
-  res.status(200).json({ message: "User deleted successfully" });
+  res
+    .status(200)
+    .json({ id: userToDelete, message: "User deleted successfully" });
 };
