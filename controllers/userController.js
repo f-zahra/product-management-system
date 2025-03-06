@@ -1,7 +1,7 @@
 const User = require("../models/user");
 const sequelize = require("../db");
 const UserRepository = require("../userRepository");
-const UserService = require("../userService");
+const UserService = require("../services/userService");
 //call user service
 // Create instances of UserRepository and UserService
 const userRepository = new UserRepository();

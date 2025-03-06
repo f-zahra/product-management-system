@@ -1,5 +1,5 @@
-const Product = require("./models/product");
-const sequelize = require("./db");
+const Product = require("../models/product");
+const sequelize = require("../db");
 
 class ProductRepository {
   //TODO: db injection
