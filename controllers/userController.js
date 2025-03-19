@@ -5,11 +5,6 @@ class UserController {
   async getUserById(req, res) {
     //find user by id
     const user = await this.userService.findUserById(req.params.id);
-    // If the user doesn't exist, return 404
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
     // Send the user details if found
     res.status(200).json(user);
   }
@@ -33,7 +28,7 @@ class UserController {
   async createUser(req, res) {
     const { name, email } = req.validData; // Now it's safe to destructure
     const newUser = await this.userService.createUser(name, email);
-    res.status(201).json(newUser);
+    res.status(201).json({ id: newUser, message: "User created successfully" });
   }
 
   async updateUser(req, res) {
@@ -44,7 +39,9 @@ class UserController {
 
       req.params.id
     );
-    res.status(200).json(updatedUser);
+    res
+      .status(200)
+      .json({ id: updatedUser, message: "User updated successfully" });
   }
   async deleteUser(req, res) {
     const userId = req.params.id;
