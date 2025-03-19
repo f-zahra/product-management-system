@@ -33,4 +33,7 @@ router.put("/:id", validateUser, (req, res) =>
 //Delete user (DELETE /users/:d)
 router.delete("/:id", (req, res) => userController.deleteUser(req, res));
 
+router.all("*", (req, res) => {
+  res.status(404).json("resource not found");
+});
 module.exports = router;

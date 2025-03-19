@@ -17,4 +17,7 @@ router.put("/:id", orderController.updateOrder);
 // Delete order (DELETE /orders/:id)
 router.delete("/:id", orderController.deleteOrder);
 
+router.all("*", (req, res) => {
+  res.status(404).json("resource not found");
+});
 module.exports = router;

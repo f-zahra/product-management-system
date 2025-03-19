@@ -19,4 +19,7 @@ router.put("/:id", validateProduct, productController.updateProduct);
 // 5. Delete product (DELETE /products/:id)
 router.delete("/:id", productController.deleteProduct);
 
+router.all("*", (req, res) => {
+  res.status(404).json("resource not found");
+});
 module.exports = router;
