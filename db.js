@@ -10,6 +10,17 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   },
 });
 
+//test connection
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Connection has been established successfully.");
+  })
+  .catch((error) => {
+    // Log the detailed error for debugging
+    console.error("Unable to connect to the database:", error.message);
+  });
+
 (async () => {
   try {
     await sequelize.sync({ force: true }); // for dev only
