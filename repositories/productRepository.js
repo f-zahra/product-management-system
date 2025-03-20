@@ -1,33 +1,32 @@
-const Product = require("../models/product");
-const sequelize = require("../db");
-
 class ProductRepository {
-  //TODO: db injection
-
-  //findAll
-  async findAllProducts({ limit, offset, order }) {
-    const products = await Product.findAll({
-      limit: limit,
-      offset: offset,
-      order: [["name", order]],
-    });
-    return products;
+  constructor(productModel) {
+    this.productModel = productModel;
   }
+
   //findByid
-  async findById(productId) {
-    const product = await Product.findByPk(productId);
+  async findByProductById(productId) {
+    const product = await this.productModel.findByPk(productId);
     return product;
   }
-  //create
-  async createProduct(productData) {
-    return await sequelize.transaction(async (t) => {
-      const newProduct = await Product.create(productData, { transaction: t });
-      return newProduct.get({ plain: true });
-    });
+  //findAll
+  async findAllProducts(queryOptions = null) {
+    const products = await this.productModel.findAll({ queryOptions });
+    return products;
   }
+
+  //create
+  async saveNewProduct(productData, transaction = null) {
+    //find if record exist
+
+    const newProduct = await this.productModel.create(productData, {
+      transaction,
+    });
+    return newProduct.get({ plain: true });
+  }
+
   //update
   async updateProduct(updatedData, productId) {
-    const updatedProduct = await Product.update(updatedData, {
+    const updatedProduct = await this.productModel.update(updatedData, {
       where: {
         id: productId,
       },
@@ -36,7 +35,7 @@ class ProductRepository {
   }
   //delete
   async deleteProductById(productId) {
-    const deletedProduct = await Product.destroy({
+    const deletedProduct = await this.productModel.destroy({
       where: { id: productId },
     });
     return deletedProduct;

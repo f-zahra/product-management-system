@@ -1,44 +1,51 @@
-const ProductRepository = require("../productRepository");
-const ProductService = require("../productService");
-//call user service
-// Create instances of productRepository and productService
-const productRepository = new ProductRepository();
-//inject repo into service for loose coupling
-const productService = new ProductService(productRepository);
+class ProductController {
+  constructor(productService) {
+    this.productService = productService;
+  }
+  async getProductById(req, res) {
+    const product = await this.productService.getProductbyId(req.params.id);
+    res.status(200).json(product); // Send product details
+  }
+  async getAllProducts(req, res) {
+    let { page, limit } = req.query; // Get from query parameters
 
-exports.getProductById = async (req, res) => {
-  const id = req.params.id;
-  const product = await productService.findProductbyId(id);
-  res.status(200).json(product); // Send product details
-};
-exports.getAllProducts = async (req, res) => {
-  let { page, limit } = req.query; // Get from query parameters
+    // Set default values if not provided
+    page = parseInt(page) || 1; // Default to page 1
+    limit = parseInt(limit) || 10; // Default limit of 10
+    const order = req.query.order || "ASC";
+    const offset = (page - 1) * limit; // Calculate offset
 
-  // Set default values if not provided
-  page = parseInt(page) || 1; // Default to page 1
-  limit = parseInt(limit) || 10; // Default limit of 10
-  const order = req.query.order || "ASC";
-  const offset = (page - 1) * limit; // Calculate offset
+    const products = await this.productService.getAllProducts({
+      limit,
+      offset,
+      order,
+    });
+    res.status(200).json(products); // Send all products
+  }
+  async createProduct(req, res) {
+    const { name, description, price, stock } = req.validData; // Now it's safe to destructure
+    const newProduct = await this.productService.createProduct({
+      name,
+      description,
+      price,
+      stock,
+    });
+    res
+      .status(201)
+      .json({ id: newProduct, message: "Product created successfully" });
+  }
+  async updateProduct(req, res) {
+    const { name, description, price, stock } = req.validData;
+    const updatedProduct = await this.productService.updateProduct(
+      { name, description, price, stock },
+      req.params.id
+    );
+    res.status(200).json(updatedProduct); // Send updated product
+  }
+  async deleteProduct(req, res) {
+    await this.productService.deleteProduct(req.params.id);
+    res.status(200).json({ message: "Product deleted successfully" });
+  }
+}
 
-  const products = await productService.findAllProducts({
-    limit,
-    offset,
-    order,
-  });
-  res.status(200).json(products); // Send all products
-};
-exports.createProduct = async (req, res) => {
-  const newProduct = await productService.createProduct(req.validData);
-  res.status(201).json(newProduct);
-};
-exports.updateProduct = async (req, res) => {
-  const updatedProduct = await productService.updateProduct(
-    req.validData,
-    req.params.id
-  );
-  res.status(200).json(updatedProduct); // Send updated product
-};
-exports.deleteProduct = async (req, res) => {
-  await productService.deleteProduct(req.params.id);
-  res.status(200).json({ message: "Product deleted successfully" });
-};
+module.exports = ProductController;

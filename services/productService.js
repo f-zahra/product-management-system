@@ -1,25 +1,19 @@
 class ProductService {
-  constructor(productRepository) {
+  constructor(productRepository, transactionHandler) {
     this.productRepository = productRepository;
+    this.transactionHandler = transactionHandler;
   }
 
-  async findProductbyId(productId) {
-    const productFound = this.productRepository.findById(productId);
-
-    if (!productFound) {
-      throw new Error("Product not found");
-    }
-    return productFound;
+  async getProductbyId(productId) {
+    return await this.productRepository.findByProductById(productId);
   }
-  async findAllProducts({ limit, offset, order }) {
-    return this.productRepository.findAllProducts({
-      limit,
-      offset,
-      order,
+  async getAllProducts(queryOptions) {
+    return this.productRepository.findAllProducts(queryOptions);
+  }
+  async createProduct(newProductData) {
+    return await this.transactionHandler(async (t) => {
+      await this.productRepository.saveNewProduct(newProductData);
     });
-  }
-  async createProduct(newProduct) {
-    return this.productRepository.createProduct(newProduct);
   }
   async updateProduct(productData, productId) {
     return await this.productRepository.updateProduct(productData, productId);
@@ -28,9 +22,7 @@ class ProductService {
     const deletedProduct = await this.productRepository.deleteProductById(
       productId
     );
-    if (deletedProduct === 0) {
-      throw new Error("product not found");
-    }
+
     return deletedProduct;
   }
 }
