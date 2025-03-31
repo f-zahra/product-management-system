@@ -2,7 +2,6 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
 const User = require("./user");
 const Product = require("./product");
-
 const Order = sequelize.define(
   "Order",
   {
@@ -30,17 +29,15 @@ const Order = sequelize.define(
   { schema: "product_management" }
 );
 
+//ONE-TO-MANY
 User.hasMany(Order, {
   foreignKey: "userId", // Specify the foreign key field in Order table
 });
+//MANY-TO-ONE
 Order.belongsTo(User, {
   foreignKey: "userId",
 });
-
-//One Product can be linked to many Orders.
-Order.belongsToMany(Product, {
-  through: "OrderProduct", // Junction table name
-  foreignKey: "orderId",
-});
+Order.belongsToMany(Product, { through: "OrderProducts" });
+Product.belongsToMany(Order, { through: "OrderProducts" });
 
 module.exports = Order;
