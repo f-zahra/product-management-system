@@ -79,18 +79,17 @@ const validateOrder = [
     .withMessage("User ID must be an integer")
     .toInt(),
 
-  body("products")
+  body("productsIds")
     .isArray({ min: 1 })
     .withMessage("Products must be a non-empty array"),
 
-  body("products.*")
+  body("productsIds.*")
     .isInt()
     .withMessage("Each product ID must be an integer")
     .toInt(),
 
   body("total_price")
-    .notEmpty()
-    .withMessage("Total price is required")
+    .optional()
     .isFloat({ gt: 0 })
     .withMessage("Total price must be a number greater than 0")
     .toFloat(),
