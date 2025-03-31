@@ -32,7 +32,7 @@ class UserController {
   }
 
   async updateUser(req, res) {
-    const { name, email } = req.body;
+    const { name, email } = req.validData;
 
     const updatedUser = await this.userService.updateUser(
       { name: name, email: email },
@@ -46,10 +46,8 @@ class UserController {
   async deleteUser(req, res) {
     const userId = req.params.id;
 
-    const userToDelete = await this.userService.deleteUser(userId);
-    res
-      .status(200)
-      .json({ id: userToDelete, message: "User deleted successfully" });
+    await this.userService.deleteUser(userId);
+    res.status(200).json({ message: "User deleted successfully" });
   }
 }
 module.exports = UserController;
