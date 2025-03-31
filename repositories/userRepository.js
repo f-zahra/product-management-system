@@ -21,8 +21,11 @@ class UserRepository {
   //queryOptions : pagination and sorting
   async findAllUsers(queryOptions = null) {
     const users = await this.userModel.findAll(queryOptions);
+
     return users;
   }
+
+  //service passes transactionobject
   async saveNewUser(name, email, transaction = null) {
     //find existing record first
     const userRecord = await this.userModel.findOne({ where: { email } });
@@ -41,27 +44,35 @@ class UserRepository {
   }
   //update
   async updateUser(dataUpdated, userId) {
-    const updatedUser = await this.userModel.update(dataUpdated, {
-      where: {
-        id: userId,
-      },
+    //find the user first
+    const user = await this.userModel.findOne({
+      where: { id: userId },
     });
-    if (updatedUser[0] === 0) {
-      throw new CustomError("User not found.", 404);
+    if (!user) {
+      throw new CustomError("User not found", 404);
     }
+
+    //handling the unique constraint error
+    if (user.dataValues.email && user.dataValues.email === dataUpdated.email) {
+      throw new CustomError("User with this email already exist", 409);
+    }
+    const updatedUser = user.update(dataUpdated);
+
     return updatedUser;
   }
   //delete
   async deleteUser(userId) {
-    const deletedUser = await this.userModel.destroy({
-      where: {
-        id: userId,
-      },
+    //find the user first
+    const user = await this.userModel.findOne({
+      where: { id: userId },
     });
-    if (deletedUser === 0) {
+    if (!user) {
       throw new CustomError("User not found.", 404);
     }
-    return deletedUser;
+
+    //and delete
+    user.destroy();
+    return user;
   }
 }
 
