@@ -5,7 +5,7 @@ class ProductService {
   }
 
   async getProductbyId(productId) {
-    return await this.productRepository.findByProductById(productId);
+    return await this.productRepository.findProductById(productId);
   }
   async getAllProducts(queryOptions) {
     return this.productRepository.findAllProducts(queryOptions);
