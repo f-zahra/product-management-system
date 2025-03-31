@@ -1,61 +1,70 @@
-const Order = require("./models/order");
-const sequelize = require("./db");
+const CustomError = require("../customError");
+
 class OrderRepository {
+  constructor(orderModel) {
+    this.orderModel = orderModel;
+  }
   //   getOrderById;
   async getOrderById(orderId) {
-    const order = await Order.findByPk(orderId);
+    const order = await this.orderModel.findByPk(orderId);
+    //if order not found
+    if (!order) {
+      // If no record is found, throw a custom error
+      const error = new CustomError("Order not found", 404);
+      //passed to the error handler
+      throw error;
+    }
     return order;
   }
   //   getAllOrders;
-  async getAllOrders(limit, offset, order) {
-    const orders = await Order.findAll({
-      limit,
-      offset,
-      order: [["order_date", order]],
+  async getAllOrders(queryOptions = null) {
+    const orders = await this.orderModel.findAll({
+      queryOptions,
     });
     return orders;
   }
   //   createOrder;
-  async createOrder(total_price, products, userId) {
-    await sequelize.transaction(async (t) => {
-      // Create new Order instance
-      const addedOrder = await Order.create(
-        { total_price: total_price },
-        {
-          transaction: t,
-        }
-      );
+  async createOrder(orderData, products, transaction = null) {
+    //no need to find existing record no field is unique
 
-      // Associate the order with the user
-      await addedOrder.setUser(userId, { transaction: t });
-      // For each product, create an entry in the OrderProduct table
-      for (const productId of products) {
-        //TODO verify if product exist
-        // Assuming the request sends a quantity for each product
-        const quantity = 1;
-
-        await addedOrder.addProduct(productId, {
-          through: { quantity },
-          transaction: t,
-        });
+    // Create new Order instance
+    const newOrder = await this.orderModel.create(
+      { total_price: orderData },
+      {
+        transaction,
       }
-      return addedOrder;
-    });
+    );
+    // Add the products to the order
+    for (let product of products) {
+      await newOrder.addProduct(product.id, {
+        through: { quantity: product.quantity },
+        transaction,
+      });
+    }
+    //return plain object
+    return newOrder.get({ plain: true });
   }
   //   updateOrder;
-  async updateOrder(newData, orderId) {
-    const updatedOrder = await Order.update(newData, {
-      where: { order_id: orderId },
+  async updateOrder(updatedData, orderId) {
+    //find order first
+    const existingOrder = await this.orderModel.findOne({
+      where: { id: orderId },
     });
+    if (!existingOrder) {
+      throw new CustomError("Order not found", 404);
+    }
+    const updatedOrder = existingOrder.update(updatedData);
     return updatedOrder;
   }
   //   deleteOrder
   async deleteOrder(orderId) {
-    const deletedOrder = await Order.Destroy({
+    const existingOrder = await this.orderModel.findOne({
       where: {
-        order_id: orderId,
+        id: orderId,
       },
     });
+
+    const deletedOrder = existingOrder.Destroy();
     return deletedOrder;
   }
 }
