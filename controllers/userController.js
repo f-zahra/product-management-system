@@ -26,8 +26,16 @@ class UserController {
     res.status(200).json(users);
   }
   async createUser(req, res) {
-    const { name, email } = req.validData; // Now it's safe to destructure
-    const newUser = await this.userService.createUser(name, email);
+    //     matchedData() is designed to return the validated data after performing the validation process. However, the order of the fields in the returned object might not be exactly the same as the order in the request body.
+
+    // This is because JavaScript objects do not guarantee the order of keys (especially for non-integer keys), and objects in JavaScript are inherently unordered.
+    const { name, email, username, password } = req.validData;
+    const newUser = await this.userService.createUser(
+      name,
+      email,
+      username,
+      password
+    );
     res.status(201).json({ id: newUser, message: "User created successfully" });
   }
 

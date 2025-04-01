@@ -11,10 +11,16 @@ class UserService {
   async findAllUsers(queryOptions) {
     return await this.userRepository.findAllUsers(queryOptions);
   }
-  async createUser(name, email) {
+  async createUser(name, email, username, password) {
     //transaction is abstracted in case another db is implemented
     return await this.transactionHandler(async (t) => {
-      const newUser = await this.userRepository.saveNewUser(name, email, t);
+      const newUser = await this.userRepository.saveNewUser(
+        name,
+        email,
+        username,
+        password,
+        t
+      );
       return newUser;
     });
   }
