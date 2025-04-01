@@ -19,7 +19,14 @@ const validateUser = [
     .withMessage("Invalid email format")
     .normalizeEmail() //lower case email
     .escape(),
-
+  body("username")
+    .isLength({ min: 3 })
+    .withMessage("Username must be at least 3 characters long.")
+    .isAlphanumeric()
+    .withMessage("Username must be alphanumeric."),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters long."),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
