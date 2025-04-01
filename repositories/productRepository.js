@@ -1,5 +1,5 @@
 const CustomError = require("../customError");
-
+//TODO :Implement repository interface for better abstraction and loose coupling
 class ProductRepository {
   constructor(productModel) {
     this.productModel = productModel;
