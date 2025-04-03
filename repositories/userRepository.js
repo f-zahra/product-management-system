@@ -26,6 +26,7 @@ class UserRepository {
     if (!user) {
       throw new CustomError("User with this username not found", 404);
     }
+    return user;
   }
   //get all users
   //queryOptions : pagination and sorting

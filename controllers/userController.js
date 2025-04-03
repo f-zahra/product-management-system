@@ -25,6 +25,11 @@ class UserController {
     });
     res.status(200).json(users);
   }
+  async loginUser(req, res) {
+    const { username, password } = req.validData;
+    const token = await this.userService.authenticateUser(username, password);
+    res.json({ message: "Login successful", token });
+  }
   async createUser(req, res) {
     //     matchedData() is designed to return the validated data after performing the validation process. However, the order of the fields in the returned object might not be exactly the same as the order in the request body.
 
