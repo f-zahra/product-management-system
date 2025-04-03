@@ -4,7 +4,7 @@ exports.verifyJWT = (req, res, next) => {
   const token =
     req.cookies.token || req.headers["authorization"]?.split(" ")[1];
   if (!token) {
-    return res.status(403).send("Token is required");
+    return res.status(401).send("please log in");
   }
 
   const decoded = JwtService.verifyToken(token);
