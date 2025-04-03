@@ -1,5 +1,6 @@
 require("express-async-errors"); // Import at the top, forwarding asynchronous errors to your Express error-handling middleware.
 require("dotenv").config();
+const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
 
@@ -11,7 +12,7 @@ const { errorHandler } = require("./globalErrorHandler");
 app.use(express.json());
 
 // 2. Custom middleware
-
+app.use(cookieParser());
 // 3. Route handler
 app.get("/", (req, res) => {
   res.send("welcome !");
