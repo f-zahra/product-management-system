@@ -16,11 +16,15 @@ const userRepository = new UserRepository(User);
 //inject repo into service for loose coupling
 const userService = new UserService(userRepository, transactionHandler);
 const userController = new UserController(userService);
+// structure routes from most specific to least specific:
 //Find user by id  (GET /users/:id)
 router.get("/:id", (req, res) => userController.getUserById(req, res));
 //Find all users  (GET /users)
 router.get("/", (req, res) => userController.getUsers(req, res));
 
+router.post("/login", validateUser, async (req, res) => {
+  await userController.loginUser(req, res);
+});
 //Create a new user (POST /users)
 router.post("/", validateUser, (req, res) =>
   userController.createUser(req, res)

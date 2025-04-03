@@ -18,6 +18,15 @@ class UserRepository {
 
     return user;
   }
+
+  async findUserByUsername(username) {
+    const user = await this.userModel.findOne({
+      where: { username: username },
+    });
+    if (!user) {
+      throw new CustomError("User with this username not found", 404);
+    }
+  }
   //get all users
   //queryOptions : pagination and sorting
   async findAllUsers(queryOptions = null) {
