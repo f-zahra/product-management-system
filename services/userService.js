@@ -11,6 +11,12 @@ class UserService {
   async findAllUsers(queryOptions) {
     return await this.userRepository.findAllUsers(queryOptions);
   }
+  async authenticateUser(username, password) {
+    //find user
+    const foundUser = await this.userRepository.findUserByUsername(username);
+
+    return foundUser;
+  }
   async createUser(name, email, username, password) {
     //transaction is abstracted in case another db is implemented
     return await this.transactionHandler(async (t) => {
