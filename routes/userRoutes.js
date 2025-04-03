@@ -3,6 +3,7 @@ const router = express.Router();
 
 const { validateUser } = require("../validators");
 const { verifyJWT } = require("../verifyToken");
+const { checkAdmin } = require("../checkAdmin");
 const User = require("../models/user");
 const transactionHandler = require("../transactionHandler");
 
@@ -18,26 +19,30 @@ const userService = new UserService(userRepository, transactionHandler);
 const userController = new UserController(userService);
 // structure routes from most specific to least specific:
 //Find user by id  (GET /users/:id)
-router.get("/:id", verifyJWT, (req, res) =>
+// a user can access only his own profile
+router.get("/:id", checkAdmin, verifyJWT, (req, res) =>
   userController.getUserById(req, res)
 );
 //Find all users  (GET /users)
-router.get("/", verifyJWT, (req, res) => userController.getUsers(req, res));
+router.get("/", checkAdmin, verifyJWT, (req, res) =>
+  userController.getUsers(req, res)
+);
 
 router.post("/login", validateUser, async (req, res) => {
   await userController.loginUser(req, res);
 });
 //Create a new user (POST /users)
-router.post("/", verifyJWT, validateUser, (req, res) =>
+//TODO create a resource for public create user
+router.post("/", checkAdmin, verifyJWT, validateUser, (req, res) =>
   userController.createUser(req, res)
 );
 
 //Update user (PUT /users/:d)
-router.put("/:id", verifyJWT, validateUser, (req, res) =>
+router.put("/:id", checkAdmin, verifyJWT, validateUser, (req, res) =>
   userController.updateUser(req, res)
 );
 //Delete user (DELETE /users/:d)
-router.delete("/:id", verifyJWT, (req, res) =>
+router.delete("/:id", checkAdmin, verifyJWT, (req, res) =>
   userController.deleteUser(req, res)
 );
 

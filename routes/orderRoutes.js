@@ -14,6 +14,7 @@ const productRepository = new ProductRepository(Product);
 const User = require("../models/user");
 const UserRepository = require("../repositories//userRepository");
 const { verifyJWT } = require("../verifyToken");
+const { checkAdmin } = require("../checkAdmin");
 const userRepository = new UserRepository(User);
 const orderService = new OrderService(
   orderRepository,
@@ -23,12 +24,13 @@ const orderService = new OrderService(
 );
 const orderController = new OrderController(orderService);
 
+//a user can only access his own order
 // Find order by id (GET /orders/:id)
-router.get("/:id", verifyJWT, (req, res) =>
+router.get("/:id", checkAdmin, verifyJWT, (req, res) =>
   orderController.getOrderById(req, res)
 );
 // Find all orders (GET /orders)
-router.get("/", verifyJWT, (req, res) =>
+router.get("/", checkAdmin, verifyJWT, (req, res) =>
   orderController.getAllOrders(req, res)
 );
 
@@ -38,12 +40,12 @@ router.post("/", verifyJWT, validateOrder, (req, res) =>
 );
 
 // Update order (PUT /orders/:id)
-router.put("/:id", verifyJWT, (req, res) =>
+router.put("/:id", checkAdmin, verifyJWT, (req, res) =>
   orderController.updateOrder(req, res)
 );
 
 // Delete order (DELETE /orders/:id)
-router.delete("/:id", verifyJWT, (req, res) =>
+router.delete("/:id", checkAdmin, verifyJWT, (req, res) =>
   orderController.deleteOrder(req, res)
 );
 

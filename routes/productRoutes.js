@@ -7,6 +7,7 @@ const ProductRepository = require("../repositories/productRepository");
 const ProductService = require("../services/productService");
 const ProductController = require("../controllers/productController");
 const { verifyJWT } = require("../verifyToken");
+const { checkAdmin } = require("../checkAdmin");
 const productRepository = new ProductRepository(Product);
 const productService = new ProductService(
   productRepository,
@@ -20,17 +21,17 @@ router.get("/:id", (req, res) => productController.getProductById(req, res));
 router.get("/", (req, res) => productController.getAllProducts(req, res));
 
 // 3. Create a new product (POST /products)
-router.post("/", verifyJWT, validateProduct, (req, res) =>
+router.post("/", checkAdmin, verifyJWT, validateProduct, (req, res) =>
   productController.createProduct(req, res)
 );
 
 // 4. Update product (PUT /products/:id)
-router.put("/:id", verifyJWT, validateProduct, (req, res) =>
+router.put("/:id", checkAdmin, verifyJWT, validateProduct, (req, res) =>
   productController.updateProduct(req, res)
 );
 
 // 5. Delete product (DELETE /products/:id)
-router.delete("/:id", verifyJWT, (req, res) =>
+router.delete("/:id", checkAdmin, verifyJWT, (req, res) =>
   productController.deleteProduct(req, res)
 );
 
