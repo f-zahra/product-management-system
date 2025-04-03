@@ -32,4 +32,8 @@ User.beforeSave(async (user) => {
     user.password = await bcrypt.hash(user.password, salt);
   }
 });
+User.prototype.comparePassword = async function (password) {
+  const res = await bcrypt.compare(password, this.password);
+  return res;
+};
 module.exports = User;
