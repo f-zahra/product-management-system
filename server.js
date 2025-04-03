@@ -21,7 +21,9 @@ app.get("/", (req, res) => {
 app.use("/users", userRouter);
 app.use("/products", productRouter);
 app.use("/orders", orderRouter);
-
+app.all("*", (req, res) => {
+  res.status(404).json("resource not found");
+});
 // 4. Error-handling middleware (MUST be last)
 
 app.use(errorHandler);
