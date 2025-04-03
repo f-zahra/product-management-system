@@ -13,6 +13,7 @@ const Product = require("../models/product");
 const productRepository = new ProductRepository(Product);
 const User = require("../models/user");
 const UserRepository = require("../repositories//userRepository");
+const { verifyJWT } = require("../verifyToken");
 const userRepository = new UserRepository(User);
 const orderService = new OrderService(
   orderRepository,
@@ -23,20 +24,28 @@ const orderService = new OrderService(
 const orderController = new OrderController(orderService);
 
 // Find order by id (GET /orders/:id)
-router.get("/:id", (req, res) => orderController.getOrderById(req, res));
+router.get("/:id", verifyJWT, (req, res) =>
+  orderController.getOrderById(req, res)
+);
 // Find all orders (GET /orders)
-router.get("/", (req, res) => orderController.getAllOrders(req, res));
+router.get("/", verifyJWT, (req, res) =>
+  orderController.getAllOrders(req, res)
+);
 
 // Create a new order (POST /orders)
-router.post("/", validateOrder, (req, res) =>
+router.post("/", verifyJWT, validateOrder, (req, res) =>
   orderController.createOrder(req, res)
 );
 
 // Update order (PUT /orders/:id)
-router.put("/:id", (req, res) => orderController.updateOrder(req, res));
+router.put("/:id", verifyJWT, (req, res) =>
+  orderController.updateOrder(req, res)
+);
 
 // Delete order (DELETE /orders/:id)
-router.delete("/:id", (req, res) => orderController.deleteOrder(req, res));
+router.delete("/:id", verifyJWT, (req, res) =>
+  orderController.deleteOrder(req, res)
+);
 
 router.all("*", (req, res) => {
   res.status(404).json("resource not found");

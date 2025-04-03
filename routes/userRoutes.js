@@ -18,7 +18,9 @@ const userService = new UserService(userRepository, transactionHandler);
 const userController = new UserController(userService);
 // structure routes from most specific to least specific:
 //Find user by id  (GET /users/:id)
-router.get("/:id", (req, res) => userController.getUserById(req, res));
+router.get("/:id", verifyJWT, (req, res) =>
+  userController.getUserById(req, res)
+);
 //Find all users  (GET /users)
 router.get("/", verifyJWT, (req, res) => userController.getUsers(req, res));
 
@@ -26,16 +28,18 @@ router.post("/login", validateUser, async (req, res) => {
   await userController.loginUser(req, res);
 });
 //Create a new user (POST /users)
-router.post("/", validateUser, (req, res) =>
+router.post("/", verifyJWT, validateUser, (req, res) =>
   userController.createUser(req, res)
 );
 
 //Update user (PUT /users/:d)
-router.put("/:id", validateUser, (req, res) =>
+router.put("/:id", verifyJWT, validateUser, (req, res) =>
   userController.updateUser(req, res)
 );
 //Delete user (DELETE /users/:d)
-router.delete("/:id", (req, res) => userController.deleteUser(req, res));
+router.delete("/:id", verifyJWT, (req, res) =>
+  userController.deleteUser(req, res)
+);
 
 router.all("*", (req, res) => {
   res.status(404).json("resource not found");
