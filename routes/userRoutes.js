@@ -2,13 +2,13 @@ var express = require("express");
 const router = express.Router();
 
 const { validateUser } = require("../validators");
+const { verifyJWT } = require("../verifyToken");
 const User = require("../models/user");
 const transactionHandler = require("../transactionHandler");
 
 const UserRepository = require("../repositories//userRepository");
 const UserService = require("../services/userService");
 const UserController = require("../controllers/userController");
-
 /**I have put the dependencies here because it's more simpler than putting in server.js */
 //call user service
 // Create instances of UserRepository and UserService
@@ -20,7 +20,7 @@ const userController = new UserController(userService);
 //Find user by id  (GET /users/:id)
 router.get("/:id", (req, res) => userController.getUserById(req, res));
 //Find all users  (GET /users)
-router.get("/", (req, res) => userController.getUsers(req, res));
+router.get("/", verifyJWT, (req, res) => userController.getUsers(req, res));
 
 router.post("/login", validateUser, async (req, res) => {
   await userController.loginUser(req, res);
