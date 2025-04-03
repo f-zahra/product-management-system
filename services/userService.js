@@ -1,3 +1,5 @@
+const CustomError = require("../customError");
+const JwtService = require("./jwtService");
 class UserService {
   constructor(userRepository, transactionHandler) {
     this.userRepository = userRepository;
@@ -14,8 +16,16 @@ class UserService {
   async authenticateUser(username, password) {
     //find user
     const foundUser = await this.userRepository.findUserByUsername(username);
+    //compare password
+    const isMatch = await foundUser.comparePassword(password);
+    if (!isMatch) {
+      throw new CustomError("wrong credentials", 409);
+    }
+    // Generate a JWT token
 
-    return foundUser;
+    const token = JwtService.generateToken(foundUser);
+
+    return token;
   }
   async createUser(name, email, username, password) {
     //transaction is abstracted in case another db is implemented
