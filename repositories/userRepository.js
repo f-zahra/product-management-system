@@ -1,4 +1,5 @@
 const CustomError = require("../customError");
+const { Op } = require("sequelize");
 //TODO :Implement repository interface for better abstraction and loose coupling
 class UserRepository {
   constructor(userModel) {
@@ -17,6 +18,16 @@ class UserRepository {
 
     return user;
   }
+
+  async findUserByUsername(username) {
+    const user = await this.userModel.findOne({
+      where: { username: username },
+    });
+    if (!user) {
+      throw new CustomError("User with this username not found", 404);
+    }
+    return user;
+  }
   //get all users
   //queryOptions : pagination and sorting
   async findAllUsers(queryOptions = null) {
@@ -26,18 +37,29 @@ class UserRepository {
   }
 
   //service passes transactionobject
-  async saveNewUser(name, email, transaction = null) {
+  async saveNewUser(name, email, username, password, transaction = null) {
     //find existing record first
-    const userRecord = await this.userModel.findOne({ where: { email } });
+    const userRecord = await this.userModel.findOne({
+      where: { [Op.or]: [{ email }, { username }] },
+    });
     if (userRecord) {
-      const error = new CustomError(
-        "User with this email already exists.",
-        409
-      );
-      throw error;
+      if (userRecord.username === username) {
+        const error = new CustomError(
+          "User with this username already exists.",
+          409
+        );
+        throw error;
+      }
+      if (userRecord.email === email) {
+        const error = new CustomError(
+          "User with this email already exists.",
+          409
+        );
+        throw error;
+      }
     } //return a promise
     const newUser = await this.userModel.create(
-      { name, email },
+      { name, email, username, password },
       { transaction }
     );
     return newUser.get({ plain: true }); // Return plain object

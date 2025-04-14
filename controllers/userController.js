@@ -25,9 +25,26 @@ class UserController {
     });
     res.status(200).json(users);
   }
+  async loginUser(req, res) {
+    const { username, password } = req.validData;
+    const token = await this.userService.authenticateUser(username, password);
+    //Storing JWTs in HTTP-only cookies is a secure method for storing tokens as it prevents JavaScript from accessing the token directly, mitigating XSS (Cross-Site Scripting) attacks.
+    res.cookie("token", token, {
+      httpOnly: true,
+    });
+    res.json({ message: "Login successful" });
+  }
   async createUser(req, res) {
-    const { name, email } = req.validData; // Now it's safe to destructure
-    const newUser = await this.userService.createUser(name, email);
+    //     matchedData() is designed to return the validated data after performing the validation process. However, the order of the fields in the returned object might not be exactly the same as the order in the request body.
+
+    // This is because JavaScript objects do not guarantee the order of keys (especially for non-integer keys), and objects in JavaScript are inherently unordered.
+    const { name, email, username, password } = req.validData;
+    const newUser = await this.userService.createUser(
+      name,
+      email,
+      username,
+      password
+    );
     res.status(201).json({ id: newUser, message: "User created successfully" });
   }
 

@@ -6,6 +6,8 @@ const transactionHandler = require("../transactionHandler");
 const ProductRepository = require("../repositories/productRepository");
 const ProductService = require("../services/productService");
 const ProductController = require("../controllers/productController");
+const { verifyJWT } = require("../verifyToken");
+const { checkAdmin } = require("../checkAdmin");
 const productRepository = new ProductRepository(Product);
 const productService = new ProductService(
   productRepository,
@@ -13,23 +15,25 @@ const productService = new ProductService(
 );
 const productController = new ProductController(productService);
 
-// 2. Find product by ID (GET /products/:id)
+// 2. Find product by ID (GET /products/:id) public
 router.get("/:id", (req, res) => productController.getProductById(req, res));
-// 1. Find all products (GET /products)
+// 1. Find all products (GET /products) public
 router.get("/", (req, res) => productController.getAllProducts(req, res));
 
 // 3. Create a new product (POST /products)
-router.post("/", validateProduct, (req, res) =>
+router.post("/", checkAdmin, verifyJWT, validateProduct, (req, res) =>
   productController.createProduct(req, res)
 );
 
 // 4. Update product (PUT /products/:id)
-router.put("/:id", validateProduct, (req, res) =>
+router.put("/:id", checkAdmin, verifyJWT, validateProduct, (req, res) =>
   productController.updateProduct(req, res)
 );
 
 // 5. Delete product (DELETE /products/:id)
-router.delete("/:id", (req, res) => productController.deleteProduct(req, res));
+router.delete("/:id", checkAdmin, verifyJWT, (req, res) =>
+  productController.deleteProduct(req, res)
+);
 
 router.all("*", (req, res) => {
   res.status(404).json("resource not found");
