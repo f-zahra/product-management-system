@@ -21,12 +21,4 @@ sequelize
     console.error("Unable to connect to the database:", error.message);
   });
 
-(async () => {
-  try {
-    await sequelize.sync({ force: true }); // for dev only
-    console.log("✅  all models synced!");
-  } catch (error) {
-    console.error("❌ Failed to sync all models:", error);
-  }
-})();
 module.exports = sequelize;
